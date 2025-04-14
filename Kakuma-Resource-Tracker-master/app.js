@@ -44,9 +44,23 @@ function handleformSubmit(event) {
         form.rest()
         clearError();
     }
-    // resources.push(resource);
-    // localStorage.setItem("resources", JSON.stringify(resources));
-    // renderResources(resources);
-    // form.reset();
-    // updateCounter();
 }
+// implementation form validation in Js//
+function validatefor(resource) {
+    let isValid = true;
+    if(!resource.type) {
+        showError('typeErro', 'resources',"Please enter a resource location is require.");
+        isValid = false;
+    }
+    return isValid;
+}
+function showError(ElementId, message) {
+    const errorElement = document.getElementById(ElementId);
+    errorElement.textContent = message;
+}
+function clearError() {
+    document.querySelectorAll(".error-message").forEach((el) => {
+        el.textContent = "";
+    });
+}
+// adding handle implementation in Js//
