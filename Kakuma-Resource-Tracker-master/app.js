@@ -17,3 +17,13 @@ function init() {
   bindEvent();
   updateCounter();
 }
+
+//in this section we demonstrate how to bind events in Js//
+function bindEvent() {
+  form.addEventListener("submit", handleformSubmit);
+  searchInput.addEventListener("input", handleSearch);
+  resourceList.addEventListener("click", handleResourceClick);
+  filterButton.forEach((btn) => {
+    btn.addEventListener("click", handleFilter);
+  });
+}
