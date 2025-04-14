@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kakuma Resource Tracker</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header class="header">
+        <h1 class="title">🏘️ Kakuma Community Resources</h1>
+        <p class="resource-counter">Total Resources: <span id="counter">0</span></p>
+    </header>
+
+    <main class="main-content">
+        <section class="resource-form-section">
+            <form class="resource-form" id="resourceForm">
+                <div class="form-group">
+                    <input type="text" placeholder="Enter resource name" id="resourceName" class="form-input">
+                    <span class="error-message" id="nameError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <select id="resourceType" class="form-select">
+                        <option value="">Select resource type</option>
+                        <option value="water">💧 Water Point</option>
+                        <option value="food">🍲 Food Distribution</option>
+                        <option value="medical">🏥 Medical Aid</option>
+                    </select>
+                    <span class="error-message" id="typeError"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" placeholder="Enter location (Zone)" id="resourceLocation" class="form-input">
+                    <span class="error-message" id="locationError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Resource</button>
+            </form>
+        </section>
+
+        <section class="filters-section">
+            <div class="filter-buttons">
+                <button class="btn filter-btn active" data-filter="all">All</button>
+                <button class="btn filter-btn" data-filter="water">Water</button>
+                <button class="btn filter-btn" data-filter="food">Food</button>
+                <button class="btn filter-btn" data-filter="medical">Medical</button>
+            </div>
+            <input type="text" class="search-input" placeholder="Search resources...">
+        </section>
+
+        <section class="resources-list" id="resourcesList"></section>
+    </main>
+
+    <script src="./app.js"></script>
+</body>
+</html>
