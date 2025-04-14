@@ -27,3 +27,26 @@ function bindEvent() {
     btn.addEventListener("click", handleFilter);
   });
 }
+//this section demonstrates how to handle in Js//
+function handleformSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const resource = {
+        id: Date.now().toString,
+        dateAdded: new Date().toLocaleDateString(),
+        name: formData.get("resourceName"),
+        type: formData.get("resourceType"),
+        quantity: formData.get("quantity"),
+        location: formData.get("resourceLocation"),
+    };
+    if(validatefor(resource)){
+        addResource(resource);
+        form.rest()
+        clearError();
+    }
+    // resources.push(resource);
+    // localStorage.setItem("resources", JSON.stringify(resources));
+    // renderResources(resources);
+    // form.reset();
+    // updateCounter();
+}
