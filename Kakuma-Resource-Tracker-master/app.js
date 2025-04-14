@@ -8,3 +8,12 @@ const filterButton = document.querySelectorAll(".filter-btn");
 let resources =JSON.parse(localStorage.getItem("resources"));
 let currentFilter = "All";
 let searchTerm = "";
+// thissection demonstrates how we should initialize our javaScript application//
+function init() {
+  if (!resources) {
+    resources = [];
+  }
+  renderResources(resources);
+  bindEvent();
+  updateCounter();
+}
