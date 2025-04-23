@@ -1,66 +1,182 @@
-//thi section demonstrate how to grap DOM Elements for manipulation//
-const form = document.getElementById("resource-form");
-const resourceList = document.getElementById("resource-list");
-const counter=document.getElementById("counter");
-const searchInput = document.querySelector(".search-input");
-const filterButton = document.querySelectorAll(".filter-btn");
-// this section demonstrates how to handle state management in javaScript//
-let resources =JSON.parse(localStorage.getItem("resources"));
-let currentFilter = "All";
-let searchTerm = "";
-// thissection demonstrates how we should initialize our javaScript application//
-function init() {
-  if (!resources) {
-    resources = [];
-  }
-  renderResources(resources);
-  bindEvent();
-  updateCounter();
+//This section demonstrates how to grab DOM Elements for manipulation//
+const form = document.getElementById('resourceForm');
+const resourcesList = document.getElementById('resourcesList'); // FIXED: Corrected ID from resourceList to resourcesList
+const counter = document.getElementById('counter');
+const searchInput = document.querySelector('.search-input');
+const filterButtons = document.querySelectorAll('.filter-btn');
+
+//This section demonstrates how to handle state management in Javascript
+let resources = JSON.parse(localStorage.getItem('resources')) || [];
+let currentFilter = "all";
+let searchTerm = '';
+
+//This section demonstrates how we should initialize our Javascript application
+function init(){
+    renderResources();
+    bindEvents();
+    updateCounter();
+};
+
+// In this section we demonstrate how to bind events in JS
+function bindEvents(){
+    form.addEventListener('submit', handleFormSubmit);
+    searchInput.addEventListener('input', handleSearch);
+    // FIXED: Changed resourceList to resourcesList
+    resourcesList.addEventListener('click', handleResourceClick);
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', handleFilter);
+    });
 }
 
-//in this section we demonstrate how to bind events in Js//
-function bindEvent() {
-  form.addEventListener("submit", handleformSubmit);
-  searchInput.addEventListener("input", handleSearch);
-  resourceList.addEventListener("click", handleResourceClick);
-  filterButton.forEach((btn) => {
-    btn.addEventListener("click", handleFilter);
-  });
-}
-//this section demonstrates how to handle in Js//
-function handleformSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(form);
+//This section demonstrates how to handle events in JS
+function handleFormSubmit(e){
+    e.preventDefault();
+
+    // FIXED: Corrected form data collection
     const resource = {
-        id: Date.now().toString,
-        dateAdded: new Date().toLocaleDateString(),
-        name: formData.get("resourceName"),
-        type: formData.get("resourceType"),
-        quantity: formData.get("quantity"),
-        location: formData.get("resourceLocation"),
+        name: document.getElementById('resourceName').value.trim(),
+        type: document.getElementById('resourceType').value,
+        location: document.getElementById('resourceLocation').value.trim(),
+        id: Date.now().toString(),
+        dateAdded: new Date().toLocaleDateString()
     };
-    if(validatefor(resource)){
+   
+    if(validateForm(resource)){
         addResource(resource);
-        form.rest()
-        clearError();
+        form.reset();
+        clearErrors();
     }
 }
-// implementation form validation in Js//
-function validatefor(resource) {
+
+// ADDED: Missing function to handle filter button clicks
+function handleFilter(e) {
+    // Remove active class from all buttons
+    filterButtons.forEach(btn => btn.classList.remove('active'));
+   
+    // Add active class to clicked button
+    e.target.classList.add('active');
+   
+    // Update current filter
+    currentFilter = e.target.dataset.filter;
+   
+    // Re-render resources with new filter
+    renderResources();
+}
+
+//This section demonstrates how to implement form validation in JS
+function validateForm(resource){
     let isValid = true;
-    if(!resource.type) {
-        showError('typeErro', 'resources',"Please enter a resource location is require.");
+    if(!resource.name){
+        showError('nameError', 'Resource name is required');
+        isValid = false;
+    }
+    if(!resource.type){
+        showError('typeError', 'Resource type is required');
+        isValid = false;
+    }
+    if(!resource.location){
+        showError('locationError', 'Resource location is required');
         isValid = false;
     }
     return isValid;
 }
-function showError(ElementId, message) {
-    const errorElement = document.getElementById(ElementId);
+
+function showError(elementId, message){
+    const errorElement = document.getElementById(elementId);
     errorElement.textContent = message;
 }
-function clearError() {
-    document.querySelectorAll(".error-message").forEach((el) => {
-        el.textContent = "";
+
+function clearErrors(){
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.textContent = '';
     });
 }
-// adding handle implementation in Js//
+
+//This section demonstrates how we implement the functionality for rendering and filtering of resources.
+function renderResources(){
+    let filteredResources = filterResources(resources, currentFilter, searchTerm);
+    // FIXED: Changed resourceList to resourcesList
+    resourcesList.innerHTML = filteredResources.map(resource =>
+        `
+        <div class="resource-card" data-type="${resource.type}">
+            <button class="delete-btn" data-id="${resource.id}">&times;</button>
+            <h3>${resource.name}</h3>
+            <p class="meta">
+                <span class="type">${getTypeIcon(resource.type)} ${formatResourceType(resource.type)}</span>
+                <span class="location"> 📍 Zone ${resource.location}</span>
+            </p>
+            <small>Added: ${resource.dateAdded}</small>
+        </div>
+        `
+    ).join('');
+}
+
+// ADDED: Helper function to format resource type for display
+function formatResourceType(type) {
+    // Capitalize first letter of each word
+    return type.split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+function filterResources(resources, filterType, searchTerm){
+    return resources.filter(resource => {
+        const matchesFilter = filterType === "all" || resource.type === filterType;
+        // FIXED: Enhanced search to also check for resource type
+        const matchesSearch = !searchTerm ||
+            resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            resource.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            resource.type.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesFilter && matchesSearch;
+    });
+}
+
+// Handle search functionality
+function handleSearch(e) {
+    searchTerm = e.target.value.trim(); // FIXED: Added trim() to handle whitespace in search
+    renderResources();
+}
+
+// Handle resource click events (delete)
+function handleResourceClick(e) {
+    if (e.target.classList.contains('delete-btn')) {
+        const id = e.target.dataset.id;
+        resources = resources.filter(resource => resource.id !== id);
+        saveToLocalStorage();
+        renderResources();
+        updateCounter();
+    }
+}
+
+// Get icon based on resource type
+function getTypeIcon(type) {
+    // FIXED: Updated icons to match the resource types from HTML
+    const icons = {
+        'water': '💧',
+        'food': '🍲',
+        'medical': '🏥'
+    };
+    return icons[type] || '📍';
+}
+
+// Update resource counter
+function updateCounter() {
+    counter.textContent = resources.length;
+}
+
+// Add new resource
+function addResource(resource) {
+    resources.push(resource);
+    saveToLocalStorage();
+    renderResources();
+    updateCounter();
+}
+
+//This last section demonstrates how to integrate local storage functionality to our app
+function saveToLocalStorage(){
+    localStorage.setItem('resources', JSON.stringify(resources));
+}
+
+//Initialize the App
+init()
